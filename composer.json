@@ -1,13 +1,15 @@
 {
-    "name": "jackdpeterson/continuous-deployment-sample-project",
-    "description": "A sample project that has CodeDeploy configuration in place and renders out PHP Info from the webserver",
-    "type": "project",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Jack D Peterson",
-            "email": "jack.peterson@gmail.com"
-        }
-    ],
-    "require": {}
+  "name": "jackdpeterson/continuous-deployment-sample-project",
+  "description": "A sample project that has CodeDeploy configuration in place and renders out PHP Info from the webserver",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jack D Peterson",
+      "email": "jack.peterson@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.2"
+  }
 }
