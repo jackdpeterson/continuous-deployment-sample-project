@@ -13,6 +13,7 @@ if [ $(which aws | wc -l) -eq "0" ]; then
 fi
 
 
+
 SOURCE=$(dirname "$0")
 if [ "${SOURCE}" = '.' ]; then
 SOURCE=$(pwd)
@@ -126,11 +127,12 @@ rm env.php
 
 ##rm -rf node_modules
 
-PUSH_CMD="aws deploy push --application-name ${APPLICATION} --s3-location "s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip" --source . --profile=${AWS_PROFILE} --region=${AWS_REGION}"
-echo ${PUSH_CMD}
+aws deploy push --application-name "${APPLICATION}" --s3-location "s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip" --source . --profile="${AWS_PROFILE}" --region="${AWS_REGION}"
 
-PUSH_OUTPUT=(${PUSH_CMD})
-echo ${PUSH_OUTPUT}
+if [ $(aws s3 ls s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip --profile ${AWS_PROFILE} | wc -l) -eq "0" ]; then
+1>&2 echo "The file, s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip never made it to S3. Look above for AWS CLI errors."
+exit 2
+fi;
 
 CD_CMD="aws deploy create-deployment --application-name ${APPLICATION} --s3-location bucket=${AWS_BUCKET},key=\"${APPLICATION}/${NOW}.zip\",bundleType=zip --deployment-group-name=${DEPLOYMENT_GROUP} --profile=${AWS_PROFILE} --region=${AWS_REGION}"
 echo ${CD_CMD}

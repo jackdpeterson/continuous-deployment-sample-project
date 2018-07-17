@@ -54,24 +54,31 @@ if [ -f "env.php" ]; then
     rm -f env.php
 fi
 
-aws s3 cp s3://${S3_CONFIGURATION_BUCKET}/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}/env.php env.php
+## IF YOU have an application environment file (containing things like the Database credentials or otherwise ... pull like this.
+##aws s3 cp s3://${S3_CONFIGURATION_BUCKET}/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}/env.php env.php
 
-if [ ! -f "env.php" ]; then
-    echo "NO ENV FILE LOADED";
-    exit 2;
-fi
+## And, of course, test to validate that the file pulled.
 
-mkdir -p /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/cache/proxies
-php vendor/doctrine/orm/bin/doctrine orm:generate-proxies
-
-sudo chmod 0777 /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/cache/proxies
-sudo chmod 0777 /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/cache
-
-sudo chown www-data:ubuntu /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/sso.pub
-sudo chmod 0600 /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/sso.pub
+##if [ ! -f "env.php" ]; then
+##    echo "NO ENV FILE LOADED";
+##    exit 2;
+##fi
 
 
-### AUTOCLEAN OLD DEPLOYMENTS -- BE WARNED, no two applications shall sit on the same server! ###
+###
+# If you are using Doctrine ORM ... here's one way to generate the proxies on install and so on
+###
+
+
+#mkdir -p /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/cache/proxies
+#php vendor/doctrine/orm/bin/doctrine orm:generate-proxies
+
+#sudo chmod 0777 /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/cache/proxies
+#sudo chmod 0777 /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID}/cache
+
+### AUTOCLEAN OLD DEPLOYMENTS -- BE WARNED, no two applications shall EVER sit on the same server!
+# CodeDeploy would break anyways if you tried to bring a multi-application server up where two builds would run simultaneously.
+###
 
 dir_obj_count=`ls /var/www/builds/${APPLICATION_NAME}/${DEPLOYMENT_GROUP_NAME}-${DEPLOYMENT_ID} | wc -l`
 
