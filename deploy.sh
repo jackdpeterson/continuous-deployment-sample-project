@@ -87,25 +87,25 @@ find ${SOURCE}/deploy/tmp -type f -exec chmod 0664 {} \;
 cd ${SOURCE}/deploy/tmp
 
 # JavaScript dependencies
-npm install
+##npm install
 
 # JavaScript build process
-webpack
+##webpack
 
 ## PHP UNIT TESTS
 cp env.dist.php env.php
-php composer.phar test-exc-third-party
+php composer.phar test
 
 # this would be included in the release process
 rm env.php
 
 ## API Documentation
 ## generate swagger.json, excluding the vendor path folder
-php vendor/bin/swagger -o swagger.json -e vendor .
+##php vendor/bin/swagger -o swagger.json -e vendor .
 ## generate the swagger-UI pretty API documentation file
-pretty-swag -i swagger.json -c pretty-swag-config.json -o public/api.html
+##pretty-swag -i swagger.json -c pretty-swag-config.json -o public/api.html
 
-rm -rf node_modules
+##rm -rf node_modules
 
 aws deploy push --application-name ${APPLICATION} --s3-location "s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip" --source . --profile=${AWS_PROFILE} --region=${AWS_REGION}
 CD_CMD="aws deploy create-deployment --application-name ${APPLICATION} --s3-location bucket=${AWS_BUCKET},key=\"${APPLICATION}/${NOW}.zip\",bundleType=zip --deployment-group-name=${DEPLOYMENT_GROUP} --profile=${AWS_PROFILE} --region=${AWS_REGION}"

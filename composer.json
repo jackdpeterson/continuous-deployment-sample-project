@@ -11,5 +11,12 @@
   ],
   "require": {
     "php": "^7.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.0"
+  },
+  "scripts": {
+    "test-phpdbg": "phpdbg -qrr ./vendor/bin/phpunit -c ./phpunit.xml --bootstrap ./vendor/autoload.php",
+    "test": "./vendor/bin/phpunit -c ./phpunit.xml --bootstrap ./vendor/autoload.php"
   }
 }

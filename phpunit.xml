@@ -1,0 +1,27 @@
+<phpunit bootstrap="test/bootstrap.php">
+    <testsuites>
+        <testsuite name="identity">
+            <directory>test/</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <directory>src/View</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-html"
+             target="./test/log/codeCoverage"
+             lowUpperBound="50"
+             highLowerBound="80"
+             showUncoveredFiles="false"
+        />
+        <log
+                type="coverage-clover"
+                target="./test/log/coverage.xml"
+        />
+    </logging>
+</phpunit>
