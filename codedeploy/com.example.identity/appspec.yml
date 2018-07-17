@@ -1,0 +1,16 @@
+version: 0.0
+os: linux 
+files:
+  - source: /
+    destination: /var/current-deployment
+hooks:
+    AfterInstall:
+        - location: codedeploy/com.example.identity/01-copy-release.sh
+          runas: ubuntu
+          timeout: 300
+        - location: codedeploy/com.example.identity/05-link-build.sh
+          runas: root
+          timeout: 180
+    ValidateService:
+        - location: codedeploy/com.example.identity/07-validate-service.sh
+          runas: root
