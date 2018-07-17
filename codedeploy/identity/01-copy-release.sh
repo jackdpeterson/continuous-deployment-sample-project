@@ -1,6 +1,6 @@
 #!/bin/bash
 exec 1> >(logger -s -t $(basename $0)) 2>&1
-S3_CONFIGURATION_BUCKET='com.example.secrets';
+S3_CONFIGURATION_BUCKET='secrets.jpeterson-udemy-example.com';
 
 ## Create builds path if it does not exist
 if [ ! -d "/var/www/builds" ]; then

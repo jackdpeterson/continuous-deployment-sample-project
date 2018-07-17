@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
+if [ $(which jq | wc -l) -eq "0" ]; then
+    1>&2 echo "Missing the jq command. Install jq in order to parse JSON from AWS responses cleanly."
+    exit 2
+fi
+
+
+if [ $(which aws | wc -l) -eq "0" ]; then
+    1>&2 echo "Missing the aws command. Install the AWS CLI."
+    exit 2
+fi
+
 
 SOURCE=$(dirname "$0")
 if [ "${SOURCE}" = '.' ]; then
@@ -14,18 +25,26 @@ echo ${SOURCE}
 
 RANDOM_BYTES=$(php -r 'echo bin2hex(random_bytes(8));')
 
-APPLICATION="com.example.identity"
+## CodeDeploy Application Name
+APPLICATION="identity"
 NOW=$(date +"%Y-%m-%d_%H:%M:%S")
 
 echo "Date: ${NOW}"
 
-AWS_PROFILE="deploy"
-AWS_BUCKET="com.example.codedeploy"
-AWS_REGION="us-east-1"
+## The credentials key / secret you'll be using (see ~/.aws/credentials)
+AWS_PROFILE="udemy"
+
+## Bucket to upload the zip file artifact to
+AWS_BUCKET="codedeploy.jpeterson-udemy-example.com"
+
+
+AWS_REGION="us-east-2"
+
+## Use Beta by default unless specified as ```./deploy.sh production```, as an example.
 DEPLOYMENT_GROUP=${1:-beta}
 
 if [ -z "${AWS_PROFILE}" ]; then
-    echo "missing AWS profile name"
+    1>&2 echo "missing AWS profile name"
     exit 2
 fi
 
@@ -107,18 +126,31 @@ rm env.php
 
 ##rm -rf node_modules
 
-aws deploy push --application-name ${APPLICATION} --s3-location "s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip" --source . --profile=${AWS_PROFILE} --region=${AWS_REGION}
+PUSH_CMD="aws deploy push --application-name ${APPLICATION} --s3-location "s3://${AWS_BUCKET}/${APPLICATION}/${NOW}.zip" --source . --profile=${AWS_PROFILE} --region=${AWS_REGION}"
+echo ${PUSH_CMD}
+
+PUSH_OUTPUT=(${PUSH_CMD})
+echo ${PUSH_OUTPUT}
+
 CD_CMD="aws deploy create-deployment --application-name ${APPLICATION} --s3-location bucket=${AWS_BUCKET},key=\"${APPLICATION}/${NOW}.zip\",bundleType=zip --deployment-group-name=${DEPLOYMENT_GROUP} --profile=${AWS_PROFILE} --region=${AWS_REGION}"
 echo ${CD_CMD}
 
 DEPLOYMENT_ID=$(${CD_CMD} | jq -r ".deploymentId")
+
+if [ ${#DEPLOYMENT_ID} -eq "0" ]; then
+    1>&2 echo "AWS CodeDeploy Error. See above message.";
+    exit 2;
+fi
+
 echo "Deployment Id: ${DEPLOYMENT_ID}"
+
+
 
 DEPLOY_CHECK_COUNT=0
 while true; do
     DEPLOY_CHECK_COUNT=$(expr ${DEPLOY_CHECK_COUNT} + 1)
 
-    if [ ${DEPLOY_CHECK_COUNT} -ge 50 ]; then
+    if [ ${DEPLOY_CHECK_COUNT} -ge "50" ]; then
         1>&2 echo "Been deploying for far too long. failing."
         exit 2
     fi
